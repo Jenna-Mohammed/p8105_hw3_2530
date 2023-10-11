@@ -117,3 +117,29 @@ ggplot(average_df, aes(x = year, y = average_df, group = locationabbr, color = l
 
 ```
 
+Making a two panel plot in NY data
+
+```{r}
+ny_df <- brfss_df %>%
+  filter(locationabbr == "NY" & year %in% c(2006, 2010) & response %in% c("Poor", "Fair", "Good", "Very Good", "Excellent"))
+
+ggplot(ny_df, aes(y = data_value, x = response ), alpha = 0.7) +
+  geom_col(aes(fill = response)) +
+    facet_wrap(~year, ncol = 1) +
+    labs(title = "Distribution of Data Value by Response Quality in NY State",
+       x = "Data Value",
+       y = "Density",
+       fill = "Response Quality")
+
+# one of the response values are missing in the dual graph
+```
+
+# Problem 3 
+
+```{r}
+
+```
+
+
+To ask TA 
+- for the two panel plot in question 2, my data is missing  a response value
