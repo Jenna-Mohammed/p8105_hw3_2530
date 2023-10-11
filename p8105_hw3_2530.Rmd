@@ -58,6 +58,8 @@ brfss_df <- brfss_smart2010 |>
   mutate(
     response = factor(response, levels = c("Poor", "Fair", "Good", "Very good", "Excellent"))
   )
+
+view(brfss_df)
 ```
 
 Determining which states were observed at 7 or more locations
@@ -87,11 +89,31 @@ states_observed_df <- brfss_df |>
 Construct a dataset
 
 ```{r}
-#new_dataset <- brfss_df |>
-  #janitor::clean_names() |>
-  #filter( brfss_df, "excellent")
+# creating a datatset filtering "Excellent" values
+
+Excellent_dataset <- brfss_df |>
+  janitor::clean_names() |>
+  filter(response == "Excellent")
   
-  
-# make a spaghetti plot
+#view(Excellent_dataset)
+
+# averaging the values 
+
+average_df <- Excellent_dataset %>%
+  group_by(year, locationabbr) %>%
+  summarize(average_df = mean(data_value, na.rm = TRUE))
+
+#view(average_df)
+
+# make a spaghetti plot of the average value over time depending on state
+
+ggplot(average_df, aes(x = year, y = average_df, group = locationabbr, color = locationabbr)) + 
+  geom_point() + 
+  geom_line() +
+  labs( title = "Plot of Average Value Over Time by State",
+    x = "Year",
+    y = "Average Value")
+
+
 ```
 
