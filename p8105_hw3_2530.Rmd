@@ -5,7 +5,93 @@ date: '2023-10-11'
 output: html_document
 ---
 
-```{r}
+```{r setup}
+
+library(ggridges)
+library(tidyverse)
+library(patchwork)
+library(dplyr)
+library(ggplot2)
+
 library(p8105.datasets)
 data("instacart")
+
+library(p8105.datasets)
+data("brfss_smart2010")
 ```
+
+# Problem 1 
+
+```{r}
+instacart |> 
+  count(aisle) |> 
+  arrange(desc(n))
+```
+
+There are 134 aisles, with fresh vegetables and fresh fruit having the most ordered items.
+
+```{r}
+instacart |> 
+  count(aisle) |> 
+  filter(n > 10000) |> 
+  mutate(aisle = fct_reorder(aisle, n)) |> 
+  ggplot(aes(x = aisle, y = n)) + 
+  geom_point() + 
+  labs(title = "Number of items ordered in each aisle") +
+  theme(axis.text.x = element_text(angle = 60, hjust = 1))
+```
+
+
+# Question 2
+
+Loading in and cleaning the data 
+
+```{r}
+view(brfss_smart2010)
+
+brfss_df <- brfss_smart2010 |>
+  janitor::clean_names() |>
+  filter(
+    topic == "Overall Health", 
+    response %in% c("Excellent", "Very good", "Good", "Fair", "Poor")
+    ) |>
+  mutate(
+    response = factor(response, levels = c("Poor", "Fair", "Good", "Very good", "Excellent"))
+  )
+```
+
+Determining which states were observed at 7 or more locations
+
+```{r}
+states_observed_df <- brfss_df |> 
+  filter(year %in% c(2002, 2010)) |>
+  select(year, locationabbr, locationdesc) |>
+  distinct() |>
+    group_by(year, locationabbr) |>
+  summarize(n=n()) |>
+  filter(n >= 7) |>
+  arrange(year, desc(n))
+  
+  
+  
+# below is the first attempted code for this portion
+  #group_by(year, locationabbr) |>
+  #summarise(location_count = n_distinct(locationdesc), .groups = "drop") |>
+
+#filter(locationdesc >= 7)|>
+  #arrange(desc(locationdesc))
+
+# need help -> says locationdesc not found
+```
+
+Construct a dataset
+
+```{r}
+#new_dataset <- brfss_df |>
+  #janitor::clean_names() |>
+  #filter( brfss_df, "excellent")
+  
+  
+# make a spaghetti plot
+```
+
