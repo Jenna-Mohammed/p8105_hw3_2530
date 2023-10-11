@@ -1,0 +1,11 @@
+---
+title: "P8104 Homework 3"
+author: "Jenna Mohammed"
+date: '2023-10-11'
+output: html_document
+---
+
+```{r}
+library(p8105.datasets)
+data("instacart")
+```
