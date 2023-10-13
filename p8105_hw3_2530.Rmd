@@ -194,6 +194,24 @@ ggplot(combined_data, aes(x = education, y = age, fill = sex)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
+Creating the plot for total activities
+
+```{r}
+combined_data |>
+   mutate(total_act = rowSums(across(min1:min1440)))|>
+  ggplot(aes(x=age,y=total_act, color = sex)) +
+  geom_point(size = 1.5)  +
+  geom_smooth(se=FALSE) +
+  labs(
+    y="Total MIMS Activity",
+    x = "Age",
+    title = " Total Activities vs Age ") +
+  viridis::scale_color_viridis(name = "Sex", discrete = TRUE) +
+    ggthemes::theme_excel() +
+  facet_grid(.~education)
+
+```
+
 
 
 To ask TA 
