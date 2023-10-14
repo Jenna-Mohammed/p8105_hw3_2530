@@ -5,7 +5,7 @@ date: '2023-10-11'
 output: html_document
 ---
 
-```{r setup, message =  FALSE}
+```{r setup, warning=FALSE}
 
 library(ggridges)
 library(tidyverse)
@@ -22,6 +22,7 @@ data("brfss_smart2010")
 
 # Problem 1 
 
+### Loading in Data
 ```{r}
 instacart |> 
   count(aisle) |> 
@@ -30,6 +31,7 @@ instacart |>
 
 There are 134 aisles, with fresh vegetables and fresh fruit having the most ordered items.
 
+### Plot that Shows the Number of Items Ordered in Each Aisle
 ```{r}
 instacart |> 
   count(aisle) |> 
@@ -41,7 +43,9 @@ instacart |>
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```
 
-The plot shows an exponential graph
+
+### Table of the Three Most Popular Items in Aisles `baking ingredients`, `dog food care`, and `packaged vegetables fruits`
+
 ```{r}
 instacart |> 
   filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) |>
@@ -53,8 +57,21 @@ instacart |>
   knitr::kable()
 ```
 
+### Table showing the mean hour of the day at which `Pink Lady Apples` and `Coffee Ice Cream` are ordered on each day of the week
 
-# Question 2
+```{r}
+instacart |>
+  filter(product_name %in% c("Pink Lady Apples", "Coffee Ice Cream")) |>
+  group_by(product_name, order_dow) |>
+  summarize(mean_hour = mean(order_hour_of_day)) |>
+  pivot_wider(
+    names_from = order_dow, 
+    values_from = mean_hour) |>
+  knitr::kable(digits = 2)
+```
+
+
+# Problem 2
 
 ### Loading in and cleaning the data 
 
@@ -74,7 +91,7 @@ brfss_df <- brfss_smart2010 |>
 view(brfss_df)
 ```
 
-### Determining which states were observed at 7 or more locations
+### Determining Which States Were Observed at 7 or More Locations
 
 ```{r}
 states_observed_df <- brfss_df |> 
@@ -93,7 +110,7 @@ view(states_observed_df)
 In 2002, Pennsylvania, Massachusetts,Jew Jersey, Conneticut, Florida, and North Carolina were observed 7 or more times. In 2010, Florida, New Jersey, Texas, California, Maryland, North Carolina, New England, Washington, Massachusets, New York, Ohio, Colorado, Pennsylvania, and South Carolina were observed 7 or more times.
 
 
-### Construct a dataset and Plot
+### Construct a Dataset and Plot
 
 ```{r}
 # creating a datatset filtering "Excellent" values
@@ -122,9 +139,9 @@ ggplot(average_df, aes(x = year, y = average_df, group = locationabbr, color = l
     y = "Average Value")
 ```
 
-The spaghetti plot above depicts the average data values from 2002 through 2010 among all states in the United States.
+The spaghetti plot above depicts the average data values from 2002 through 2010 from `average_df` among all states in the United States.
 
-### Making a two panel plot in NY data
+### Making a Two Panel Plot in NY Data
 
 ```{r}
 ny_df <- brfss_df %>%
@@ -137,15 +154,13 @@ ggplot(ny_df, aes(y = data_value, x = response ), alpha = 0.7) +
        x = "Data Value",
        y = "Density",
        fill = "Response Quality")
-
-# one of the response values are missing in the dual graph
 ```
 
-The above graph depicts the distribution of data value response quality in NY state in 2006 and 2010. The two plots follow a similar distribution, however the 2010 graph shows higher density compared to 2006.
+The above graph depicts the distribution of data value response quality in NY state in 2006 and 2010 from `ny_df`. The two plots follow a similar distribution, however the 2010 graph shows higher density compared to 2006.
 
 # Problem 3 
 
-### Load in and tidy data for participants
+### Load in and Tidy Data for Participants
 
 ```{r}
 covar_df = read_csv("./nhanes_covar.csv", skip = 4) %>%
@@ -159,7 +174,7 @@ covar_df = read_csv("./nhanes_covar.csv", skip = 4) %>%
 view(covar_df)
 ```
 
-### load in and tidy data for accelerator
+### Load in and Tidy Data for Accelerator
 
 ```{r}
 accel_df = read_csv("./nhanes_accel.csv") |>
@@ -169,7 +184,7 @@ accel_df = read_csv("./nhanes_accel.csv") |>
 view(accel_df)
 ```
 
-### Merge participant and accelerator data
+### Merge Participant and Accelerator Data
 
 ```{r}
 combined_data <- left_join(covar_df,accel_df,by= "seqn")
@@ -177,7 +192,7 @@ combined_data <- left_join(covar_df,accel_df,by= "seqn")
 view(combined_data)
 ```
 
-### Producing a reader-friendly table
+### Producing a Reader-Friendly Table
 
 ```{r}
 combined_data |>
@@ -200,9 +215,9 @@ ggplot(combined_data, aes(x = education, y = age, fill = sex)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-The boxplots show that the mean age of males and females with `More than high school education` is lower compared to those with `Less than high school` and `high school equivalent`. For `High school equivalent`, the mean agge of males is lower than the mean age of females.
+The boxplots show that the mean age of males and females with `More than high school education` is lower compared to those with `Less than high school` and `high school equivalent`. For `High school equivalent`, the mean age of males is lower than the mean age of females.
 
-### Creating the plot for total activities
+### Creating the Plot for Total Activities
 
 ```{r}
 combined_data |>
@@ -217,10 +232,9 @@ combined_data |>
   viridis::scale_color_viridis(name = "Sex", discrete = TRUE) +
     ggthemes::theme_excel() +
   facet_grid(.~education)
-
 ```
 
-### 3 panel plot that shows activity throughout the course of a dat
+### 3 Panel Plot that Shows Activity Throughout The course of a Day
 ```{r}
 
 activity_24 = combined_data |>
