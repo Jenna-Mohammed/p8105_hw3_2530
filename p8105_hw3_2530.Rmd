@@ -5,7 +5,7 @@ date: '2023-10-11'
 output: html_document
 ---
 
-```{r setup}
+```{r setup, message =  FALSE}
 
 library(ggridges)
 library(tidyverse)
@@ -41,10 +41,22 @@ instacart |>
   theme(axis.text.x = element_text(angle = 60, hjust = 1))
 ```
 
+The plot shows an exponential graph
+```{r}
+instacart |> 
+  filter(aisle %in% c("baking ingredients", "dog food care", "packaged vegetables fruits")) |>
+  group_by(aisle) |> 
+  count(product_name) |> 
+  mutate(rank = min_rank(desc(n))) |> 
+  filter(rank < 4) |> 
+  arrange(desc(n)) |>
+  knitr::kable()
+```
+
 
 # Question 2
 
-Loading in and cleaning the data 
+### Loading in and cleaning the data 
 
 ```{r}
 view(brfss_smart2010)
@@ -62,7 +74,7 @@ brfss_df <- brfss_smart2010 |>
 view(brfss_df)
 ```
 
-Determining which states were observed at 7 or more locations
+### Determining which states were observed at 7 or more locations
 
 ```{r}
 states_observed_df <- brfss_df |> 
@@ -76,17 +88,12 @@ states_observed_df <- brfss_df |>
   
 view(states_observed_df)
   
-# below is the first attempted code for this portion
-  #group_by(year, locationabbr) |>
-  #summarise(location_count = n_distinct(locationdesc), .groups = "drop") |>
-
-#filter(locationdesc >= 7)|>
-  #arrange(desc(locationdesc))
-
-# need help -> says locationdesc not found
 ```
 
-Construct a dataset
+In 2002, Pennsylvania, Massachusetts,Jew Jersey, Conneticut, Florida, and North Carolina were observed 7 or more times. In 2010, Florida, New Jersey, Texas, California, Maryland, North Carolina, New England, Washington, Massachusets, New York, Ohio, Colorado, Pennsylvania, and South Carolina were observed 7 or more times.
+
+
+### Construct a dataset and Plot
 
 ```{r}
 # creating a datatset filtering "Excellent" values
@@ -113,11 +120,11 @@ ggplot(average_df, aes(x = year, y = average_df, group = locationabbr, color = l
   labs( title = "Plot of Average Value Over Time by State",
     x = "Year",
     y = "Average Value")
-
-
 ```
 
-Making a two panel plot in NY data
+The spaghetti plot above depicts the average data values from 2002 through 2010 among all states in the United States.
+
+### Making a two panel plot in NY data
 
 ```{r}
 ny_df <- brfss_df %>%
@@ -134,9 +141,11 @@ ggplot(ny_df, aes(y = data_value, x = response ), alpha = 0.7) +
 # one of the response values are missing in the dual graph
 ```
 
+The above graph depicts the distribution of data value response quality in NY state in 2006 and 2010. The two plots follow a similar distribution, however the 2010 graph shows higher density compared to 2006.
+
 # Problem 3 
 
-Load in and tidy data for participants
+### Load in and tidy data for participants
 
 ```{r}
 covar_df = read_csv("./nhanes_covar.csv", skip = 4) %>%
@@ -150,7 +159,7 @@ covar_df = read_csv("./nhanes_covar.csv", skip = 4) %>%
 view(covar_df)
 ```
 
-load in and tidy data for accelerator
+### load in and tidy data for accelerator
 
 ```{r}
 accel_df = read_csv("./nhanes_accel.csv") |>
@@ -160,7 +169,7 @@ accel_df = read_csv("./nhanes_accel.csv") |>
 view(accel_df)
 ```
 
-Merge participant and accelerator data
+### Merge participant and accelerator data
 
 ```{r}
 combined_data <- left_join(covar_df,accel_df,by= "seqn")
@@ -168,7 +177,7 @@ combined_data <- left_join(covar_df,accel_df,by= "seqn")
 view(combined_data)
 ```
 
-Producing a reader-friendly table
+### Producing a reader-friendly table
 
 ```{r}
 combined_data |>
@@ -182,9 +191,6 @@ group_by(sex,education)|>
 
 # creating a plot for the above data 
 
-ggplot(combined_data, aes( x = education, y = sex)
-       )
-
 ggplot(combined_data, aes(x = education, y = age, fill = sex)) +
   geom_boxplot() +
   labs(title = "Distribution of Age based on Gender",
@@ -194,7 +200,9 @@ ggplot(combined_data, aes(x = education, y = age, fill = sex)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 
-Creating the plot for total activities
+The boxplots show that the mean age of males and females with `More than high school education` is lower compared to those with `Less than high school` and `high school equivalent`. For `High school equivalent`, the mean agge of males is lower than the mean age of females.
+
+### Creating the plot for total activities
 
 ```{r}
 combined_data |>
@@ -212,7 +220,30 @@ combined_data |>
 
 ```
 
+### 3 panel plot that shows activity throughout the course of a dat
+```{r}
 
+activity_24 = combined_data |>
+  pivot_longer(
+    min1:min1440,names_to = "time",
+    values_to = "activity",
+    names_prefix = "min")|>
+  mutate(time = as.numeric(time))|>
+  group_by( time, education, sex)|>
+  mutate(activity = mean(activity))
 
-To ask TA 
-- for the two panel plot in question 2, my data is missing  a response value
+# create the plot using ggplot 
+
+activity_plot <- activity_24 |>
+  ggplot(aes(x = time, y = activity, color = sex)) +
+  geom_line() +
+  facet_wrap(~education, ncol = 1) +
+  labs(title = "24-Hour Activity Based on Education Level",
+       x = "Minutes in a Day",
+       y = "Activity") +
+  theme_minimal() 
+
+activity_plot
+```
+
+The above plot shows a similar pattern for males and females on activity among all three panels. However, for the graphs`High school equivalent` and `More than high school`, females show to have slightly higher activity levels.
